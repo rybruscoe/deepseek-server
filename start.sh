@@ -19,7 +19,7 @@ start_tailscale() {
     if [ -z "$TS_AUTHKEY" ]; then
         log "ERROR: No Tailscale auth key provided"
         exit 1
-    }
+    fi
     
     log "Authenticating with Tailscale..."
     tailscale up --authkey="$TS_AUTHKEY" --hostname="llm-gpu-pod"
@@ -28,7 +28,7 @@ start_tailscale() {
     if ! tailscale status; then
         log "ERROR: Tailscale failed to connect"
         exit 1
-    }
+    fi
     log "Tailscale connected successfully"
 }
 
