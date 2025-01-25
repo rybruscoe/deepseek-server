@@ -43,17 +43,15 @@ A GPU-accelerated server for running the DeepSeek Coder model using llama.cpp.
    Value: your-tailscale-auth-key
    ```
 
-5. Volume Settings:
-   - Click "Add Volume"
-   - Set:
+5. Container Disk & Network Volume:
    ```
-   Container Path: /app/models
-   Size: 100GB
+   Container Disk: 20GB
+   Network Volume: 100GB
    ```
 
-6. Advanced Settings:
+6. Container Configuration:
    ```
-   Docker Arguments: --gpus all
+   Docker Command: --gpus all
    ```
 
 7. Click "Deploy"
