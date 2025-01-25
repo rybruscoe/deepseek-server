@@ -1,4 +1,7 @@
-# Use CUDA base image for GPU support
+# Use CUDA 12.1.0 base image for GPU support
+# - Required for A40 GPUs on RunPod
+# - Compatible with llama.cpp CUDA acceleration
+# - devel variant includes necessary build tools
 FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
 
 # Add GitHub Container Registry metadata for better discoverability

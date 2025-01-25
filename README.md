@@ -30,7 +30,10 @@ graph TD
 ## Features
 
 - GPU acceleration with CUDA support
-- Optimized for A40 GPUs on RunPod
+- GPU acceleration with CUDA 12.1.0
+  - Optimized for A40 GPUs on RunPod
+  - Full CUDA support in llama.cpp
+  - Includes development tools for compilation
 - FastAPI server for easy integration
 - Automatic model downloading
 - Tailscale VPN integration for secure access
@@ -148,6 +151,60 @@ print(response.json()["text"])
 
 - `TS_AUTHKEY`: Tailscale authentication key (required for VPN access)
 - `MODEL_PATH`: Path to the model file (defaults to `/app/models/deepseek-coder-33b-base.Q8_0.gguf`)
+
+## GPU Optimization
+
+### Memory Configuration
+
+The server can be optimized for different GPU configurations by adjusting these parameters in `start.sh`:
+
+```bash
+# Memory usage (adjust based on your GPU)
+--n-gpu-layers 80        # Number of layers to offload to GPU
+--gpu-memory-utilization 0.9  # GPU memory usage (0.0 to 1.0)
+```
+
+Recommended settings by GPU:
+- **NVIDIA A40 (48GB)**:
+  ```
+  --n-gpu-layers 80
+  --gpu-memory-utilization 0.9
+  ```
+- **NVIDIA A5000 (24GB)**:
+  ```
+  --n-gpu-layers 60
+  --gpu-memory-utilization 0.8
+  ```
+- **NVIDIA A4000 (16GB)**:
+  ```
+  --n-gpu-layers 40
+  --gpu-memory-utilization 0.7
+  ```
+
+### Performance Tuning
+
+Other parameters that affect performance:
+```bash
+--threads 8             # CPU threads for non-GPU operations
+--ctx-size 8192        # Context window size
+--batch-size 1024      # Batch size for processing
+```
+
+Tips for optimization:
+- Increase `--threads` on machines with more CPU cores
+- Reduce `--ctx-size` if running out of memory
+- Adjust `--batch-size` based on your use case:
+  - Larger for throughput
+  - Smaller for lower latency
+
+### Model Quantization
+
+We use Q8_0 quantization for optimal quality, but other options are available:
+- **Q8_0**: Best quality, largest size
+- **Q6_K**: Good balance of quality and size
+- **Q4_K_M**: Smallest size, lower quality
+
+To use a different quantization, update `MODEL_URL` in `download_model.sh`.
 
 ## License
 
