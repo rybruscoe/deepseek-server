@@ -68,25 +68,19 @@ graph TD
 ### 3. Deploy on RunPod
 
 1. Go to [RunPod Console](https://runpod.io/console/pods)
-2. Click "Deploy"
-3. Basic Settings:
+2. Click "Deploy" and then click "Edit Template" to enter the following Pod Template Overrides:
    ```
    GPU Type: NVIDIA A40
    Container Image: ghcr.io/rybruscoe/deepseek-server:latest
    ```
-
-4. Environment Variables:
+   Environment Variables:
    - Click "Add Environment Variable"
    - Add:
    ```
    Name: TS_AUTHKEY
    Value: your-tailscale-auth-key
    ```
-
-5. Container Runtime Settings:
-   - Click "Advanced Options" at the bottom of the deployment page
-   - Check "Enable Privileged Container"
-   In "Container Start Command", enter:
+   Enter the following command under the Container Start Command:
    ```
    --privileged
    ```
@@ -94,18 +88,18 @@ graph TD
    Security Note: Privileged mode grants extensive system access. This is required for
    Tailscale's network functionality but should only be used in trusted environments.
 
-6. Container Disk & Network Volume:
+   Container Disk & Network Volume:
    ```
    Container Disk: 20GB
    Volume Disk: 100GB
    ```
 
-7. Volume Mount Path
+   Volume Mount Path
    ```
    /app/models
    ```
 
-8. HTTP Port Settings:
+   HTTP Port Settings:
     ```
     Expose HTTP Ports: 8000,8080
     ```
@@ -114,7 +108,7 @@ graph TD
     Note: These ports are only needed if you want direct HTTP access. 
     When using Tailscale, no additional port configuration is required.
 
-9. Click "Deploy"
+3. Click "Set Overrides" and then "Deploy"
 
 ### 4. Verify Deployment
 
