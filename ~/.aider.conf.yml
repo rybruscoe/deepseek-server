@@ -1,3 +1,0 @@
-model: deepseek-coder
-llama_cpp_server: http://llm-gpu-pod.your-tailnet:8080
-prompts_path: ~/.aider-deepseek.prompts 
