@@ -95,22 +95,16 @@ graph TD
    /app/models
    ```
 
-7. Container Start Command:
-   ```
-   NET_ADMIN,NET_RAW
-   ```
-   Note: These specific capabilities are required for Tailscale networking
+7. HTTP Port Settings:
+    ```
+    Expose HTTP Ports: 8000,8080
+    ```
+    - Port 8000: FastAPI server
+    - Port 8080: llama.cpp server
+    Note: These ports are only needed if you want direct HTTP access. 
+    When using Tailscale, no additional port configuration is required.
 
-8. HTTP Port Settings:
-   ```
-   Expose HTTP Ports: 8000,8080
-   ```
-   - Port 8000: FastAPI server
-   - Port 8080: llama.cpp server
-   Note: These ports are only needed if you want direct HTTP access. 
-   When using Tailscale, no additional port configuration is required.
-
-9. Click "Deploy"
+8. Click "Deploy"
 
 ### 4. Verify Deployment
 

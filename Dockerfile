@@ -102,5 +102,10 @@ EXPOSE 8080 8000
 ENV TS_AUTHKEY=""
 ENV MODEL_PATH="/app/models/deepseek-coder-33b-base.Q8_0.gguf"
 
+# Add required capabilities for Tailscale networking
+# NET_ADMIN: Required for network interface configuration
+# NET_RAW: Required for VPN tunnel setup
+RUN setcap cap_net_admin,cap_net_raw+ep /usr/sbin/tailscaled
+
 # Start services via start.sh
 CMD ["./start.sh"] 
