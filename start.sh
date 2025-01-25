@@ -3,6 +3,9 @@
 # Exit on error
 set -e
 
+# Download model if needed
+./download_model.sh
+
 # Start Tailscale if auth key is provided
 if [ ! -z "$TS_AUTHKEY" ]; then
     echo "Starting Tailscale..."
@@ -15,8 +18,8 @@ fi
 
 # Start llama.cpp server in background
 echo "Starting llama.cpp server..."
-./llama.cpp/server \
-    --model /app/models/DeepSeek-R1-Distill-Qwen-32B-F16.gguf \
+./llama.cpp/bin/server \
+    --model "$MODEL_PATH" \
     --n-gpu-layers 80 \
     --threads 8 \
     --ctx-size 8192 \
