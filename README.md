@@ -42,19 +42,34 @@ A GPU-accelerated server for running the DeepSeek Coder model using llama.cpp.
    Name: TS_AUTHKEY
    Value: your-tailscale-auth-key
    ```
+   Can leave the OLLAMA_MODELS path or remove it as it won't be used.
 
 5. Container Disk & Network Volume:
    ```
    Container Disk: 20GB
-   Network Volume: 100GB
+   Volume Disk: 100GB
    ```
 
-6. Container Configuration:
+6. Volume Mount Path
    ```
-   Docker Command: --gpus all
+   /app/models
    ```
 
-7. Click "Deploy"
+7. Container Start Command:
+   ```
+   --gpus all
+   ```
+
+8. HTTP Port Settings:
+   ```
+   Expose HTTP Ports: 8000,8080
+   ```
+   - Port 8000: FastAPI server
+   - Port 8080: llama.cpp server
+   Note: These ports are only needed if you want direct HTTP access. 
+   When using Tailscale, no additional port configuration is required.
+
+9. Click "Deploy"
 
 ### 4. Verify Deployment
 
