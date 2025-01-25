@@ -95,19 +95,13 @@ graph TD
    /app/models
    ```
 
-7. Container Runtime Settings:
+7. Container Start Command:
    ```
    NET_ADMIN,NET_RAW
    ```
    Note: These specific capabilities are required for Tailscale networking
 
-8. Container Start Command:
-   ```
-   Leave this empty (do not put --gpus all here)
-   ```
-   Note: GPU access is handled automatically by RunPod's template
-
-9. HTTP Port Settings:
+8. HTTP Port Settings:
    ```
    Expose HTTP Ports: 8000,8080
    ```
@@ -116,7 +110,7 @@ graph TD
    Note: These ports are only needed if you want direct HTTP access. 
    When using Tailscale, no additional port configuration is required.
 
-10. Click "Deploy"
+9. Click "Deploy"
 
 ### 4. Verify Deployment
 
