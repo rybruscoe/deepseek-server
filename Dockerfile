@@ -15,6 +15,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install essential build tools and dependencies
 # - build-essential: Required for compiling llama.cpp
 # - cmake: Used for llama.cpp build system
+# - meson and ninja-build: Used for building llama.cpp using meson
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
@@ -31,20 +32,29 @@ COPY requirements.txt .
 # It's safe to run pip as root in a container context
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Set up CUDA environment
+# Set up CUDA environment and stubs
 WORKDIR /app
 ENV CUDA_HOME=/usr/local/cuda
 ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64
 ENV PATH=$PATH:$CUDA_HOME/bin
+
+# Link CUDA stubs
+RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && \
+    echo "/usr/local/cuda/lib64/stubs" > /etc/ld.so.conf.d/cuda-stubs.conf && \
+    ldconfig
 
 # Build llama.cpp with CUDA support
 RUN git clone https://github.com/ggerganov/llama.cpp.git && \
     cd llama.cpp && \
     mkdir build && \
     cd build && \
-    cmake .. -DLLAMA_CUBLAS=ON \
-            -DCMAKE_CUDA_ARCHITECTURES=86 \
-            -DCMAKE_BUILD_TYPE=Release && \
+    cmake .. \
+        -DGGML_CUDA=ON \
+        -DCMAKE_CUDA_ARCHITECTURES=86 \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_CUDA_FLAGS="-I${CUDA_HOME}/include" \
+        -DCMAKE_EXE_LINKER_FLAGS="-L/usr/local/cuda/lib64 -L/usr/local/cuda/lib64/stubs -lcuda" \
+        -DCMAKE_SHARED_LINKER_FLAGS="-L/usr/local/cuda/lib64 -L/usr/local/cuda/lib64/stubs -lcuda" && \
     cmake --build . --config Release -j && \
     mkdir -p ../bin && \
     cp bin/* ../bin/
