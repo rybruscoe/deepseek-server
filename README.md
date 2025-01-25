@@ -57,8 +57,9 @@ A GPU-accelerated server for running the DeepSeek Coder model using llama.cpp.
 
 7. Container Start Command:
    ```
-   --gpus all
+   Leave this empty (do not put --gpus all here)
    ```
+   Note: GPU access is handled automatically by RunPod's template
 
 8. HTTP Port Settings:
    ```
