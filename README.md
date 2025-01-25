@@ -82,20 +82,27 @@ graph TD
    Name: TS_AUTHKEY
    Value: your-tailscale-auth-key
    ```
-   Can leave the OLLAMA_MODELS path or remove it as it won't be used.
 
-5. Container Disk & Network Volume:
+5. Container Runtime Settings:
+   ```
+   Privileged: Yes
+   ```
+   Note: Required for Tailscale networking. This gives the container full access to host devices.
+   Security Note: Privileged mode grants extensive system access. This is required for
+   Tailscale's network functionality but should only be used in trusted environments.
+
+6. Container Disk & Network Volume:
    ```
    Container Disk: 20GB
    Volume Disk: 100GB
    ```
 
-6. Volume Mount Path
+7. Volume Mount Path
    ```
    /app/models
    ```
 
-7. HTTP Port Settings:
+8. HTTP Port Settings:
     ```
     Expose HTTP Ports: 8000,8080
     ```
@@ -104,7 +111,7 @@ graph TD
     Note: These ports are only needed if you want direct HTTP access. 
     When using Tailscale, no additional port configuration is required.
 
-8. Click "Deploy"
+9. Click "Deploy"
 
 ### 4. Verify Deployment
 

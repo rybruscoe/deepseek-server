@@ -43,9 +43,7 @@ RUN curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | tee 
 # Create necessary directories and TUN device for Tailscale
 # TUN device is required for VPN functionality
 RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale && \
-    mkdir -p /dev/net && \
-    mknod /dev/net/tun c 10 200 && \
-    chmod 600 /dev/net/tun
+    mkdir -p /dev/net
 
 # Install Python dependencies
 COPY requirements.txt .
@@ -103,11 +101,6 @@ EXPOSE 8080 8000
 # TS_AUTHKEY will be provided at runtime via RunPod
 ENV TS_AUTHKEY=""
 ENV MODEL_PATH="/app/models/deepseek-coder-33b-base.Q8_0.gguf"
-
-# Add required capabilities for Tailscale networking
-# NET_ADMIN: Required for network interface configuration
-# NET_RAW: Required for VPN tunnel setup
-RUN setcap cap_net_admin,cap_net_raw+ep /usr/sbin/tailscaled
 
 # Start services via start.sh
 CMD ["./start.sh"] 
