@@ -33,6 +33,7 @@ RUN curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | tee 
 
 # Create necessary directories and files for Tailscale
 RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale && \
+    mkdir -p /dev/net && \
     mknod /dev/net/tun c 10 200 && \
     chmod 600 /dev/net/tun
 

@@ -94,7 +94,7 @@ graph TD
 
 7. Container Runtime Settings:
    ```
-   Add Capabilities: NET_ADMIN,NET_RAW
+   NET_ADMIN,NET_RAW
    ```
    Note: These specific capabilities are required for Tailscale networking
 
