@@ -6,7 +6,7 @@ FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
 
 # Add GitHub Container Registry metadata for better discoverability
 LABEL org.opencontainers.image.source=https://github.com/rybruscoe/deepseek-server
-LABEL org.opencontainers.image.description="DeepSeek LLM Server with Tailscale integration"
+LABEL org.opencontainers.image.description="DeepSeek LLM Server with CUDA acceleration for RunPod"
 LABEL org.opencontainers.image.licenses=MIT
 
 # Prevent interactive prompts during build
@@ -15,8 +15,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install essential build tools and dependencies
 # - build-essential: Required for compiling llama.cpp
 # - cmake: Used for llama.cpp build system
-# - iptables, iproute2, kmod: Required for Tailscale networking
-# - libcap2-bin: Required for setting capabilities
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
@@ -26,24 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     curl \
     ca-certificates \
-    iptables \
-    iproute2 \
-    kmod \
-    libcap2-bin \
     && rm -rf /var/lib/apt/lists/*
-
-# Install Tailscale for secure networking
-# Using the official Tailscale package repository
-RUN curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null && \
-    curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list && \
-    apt-get update && \
-    apt-get install -y tailscale && \
-    rm -rf /var/lib/apt/lists/*
-
-# Create necessary directories and TUN device for Tailscale
-# TUN device is required for VPN functionality
-RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale && \
-    mkdir -p /dev/net
 
 # Install Python dependencies
 COPY requirements.txt .
@@ -96,18 +77,11 @@ WORKDIR /app
 RUN chmod +x start.sh download_model.sh
 
 # Expose ports for API access
-# Note: When using Tailscale, direct port exposure isn't necessary
+# These ports will be exposed via RunPod's proxy
 EXPOSE 8080 8000
 
 # Environment variables
-# TS_AUTHKEY will be provided at runtime via RunPod
-ENV TS_AUTHKEY=""
 ENV MODEL_PATH="/app/models/deepseek-coder-33b-base.Q8_0.gguf"
-
-# Set required capabilities for Tailscale
-RUN apt-get update && apt-get install -y libcap2-bin && \
-    setcap cap_net_admin,cap_net_raw,cap_mknod=+ep $(which tailscaled) && \
-    setcap cap_net_admin,cap_net_raw=+ep $(which tailscale)
 
 # Start services via start.sh
 CMD ["./start.sh"] 

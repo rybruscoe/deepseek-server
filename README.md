@@ -6,8 +6,8 @@ A GPU-accelerated server for running the DeepSeek Coder model using llama.cpp.
 
 ```mermaid
 graph TD
-    L[Your Laptop] --- TS{Tailscale Mesh}
-    TS --- P[RunPod GPU Instance]
+    L[Your Laptop] --- |HTTPS| PR[RunPod Proxy]
+    PR --- P[RunPod GPU Instance]
     P --- M[(Model Storage)]
     
     subgraph "RunPod Container"
@@ -16,56 +16,35 @@ graph TD
         F --- LL
     end
 
-    style TS fill:#f9f,stroke:#333,stroke-width:4px
     style P fill:#bbf,stroke:#333,stroke-width:2px
     style L fill:#dfd,stroke:#333,stroke-width:2px
+    style PR fill:#f9f,stroke:#333,stroke-width:2px
 ```
 
 ### Network Security
-- Tailscale creates an encrypted mesh network between your devices
-- All traffic is end-to-end encrypted
-- No need to expose public ports
-- Each device has a unique identity and access can be revoked
+- HTTPS encryption via RunPod's proxy
+- Authentication required for access
+- Unique URL for each deployment
+- Internal network isolation between pods
 
 ## Features
 
-- GPU acceleration with CUDA support
 - GPU acceleration with CUDA 12.1.0
   - Optimized for A40 GPUs on RunPod
   - Full CUDA support in llama.cpp
   - Includes development tools for compilation
 - FastAPI server for easy integration
 - Automatic model downloading
-- Tailscale VPN integration for secure access
+- Secure HTTPS access via RunPod proxy
 
 ## Deployment
 
 ### 1. Prerequisites
 
-1. [Tailscale Account](https://tailscale.com/) - Sign up if you haven't already
-2. [RunPod Account](https://runpod.io/) - You'll need credits for GPU usage
-3. [GitHub Container Registry](https://ghcr.io) - The image is publicly available
+1. [RunPod Account](https://runpod.io/) - You'll need credits for GPU usage
+2. [GitHub Container Registry](https://ghcr.io) - The image is publicly available
 
-### 2. Get Tailscale Auth Key
-
-1. Go to [Tailscale Admin Console](https://login.tailscale.com/admin/settings/keys)
-2. Click "Generate auth key"
-3. Set expiry (e.g., 90 days)
-4. Configure key settings:
-   ```
-   Type: One-off (recommended for security)
-   Expiry: 90 days
-   Tags: Optional (e.g., "runpod")
-   Reusable: No (one-off keys are more secure)
-   Ephemeral: Yes (pod will be removed from devices list when stopped)
-   ```
-4. Copy the auth key (starts with `tskey-auth-`)
-
-> **Security Note**: One-off keys can only be used once and are automatically invalidated after use. 
-> If you destroy and recreate your pod, you'll need to generate a new auth key. 
-> This is more secure than using reusable keys as it limits the window of potential compromise.
-
-### 3. Deploy on RunPod
+### 2. Deploy on RunPod
 
 1. Go to [RunPod Console](https://runpod.io/console/pods)
 2. Click "Deploy" and then click "Edit Template" to enter the following Pod Template Overrides:
@@ -74,13 +53,6 @@ graph TD
    Container Image: ghcr.io/rybruscoe/deepseek-server:latest
    ```
 
-   Environment Variables:
-   - Click "Add Environment Variable"
-   - Add:
-   ```
-   Name: TS_AUTHKEY
-   Value: your-tailscale-auth-key
-   ```
    Container Disk & Network Volume:
    ```
    Container Disk: 20GB
@@ -96,10 +68,9 @@ graph TD
     ```
     Expose HTTP Ports: 8000,8080
     ```
-    - Port 8000: FastAPI server
-    - Port 8080: llama.cpp server
-    Note: These ports are only needed if you want direct HTTP access. 
-    When using Tailscale, no additional port configuration is required.
+    Note: These ports will be accessible via:
+    - API: https://[pod-id]-8000.proxy.runpod.net
+    - LLM Server: https://[pod-id]-8080.proxy.runpod.net
 
 3. Click "Set Overrides" and then "Deploy"
 
@@ -108,13 +79,11 @@ graph TD
 1. Wait for pod to start (~5 minutes for model download)
 2. Check pod logs for:
    - "Downloading model..." message
-   - "Starting Tailscale..." message
    - "Server started successfully" message
 
-3. Verify Tailscale connection:
-   - Your pod will appear in Tailscale admin console as "llm-gpu-pod"
-   - From your local machine: `ping llm-gpu-pod`
-   - Or check pod status: `tailscale status` in pod shell
+3. Verify API access:
+   - API endpoint: https://[pod-id]-8000.proxy.runpod.net
+   - LLM Server: https://[pod-id]-8080.proxy.runpod.net
 
 ## API Usage
 
@@ -122,7 +91,7 @@ graph TD
 import requests
 
 response = requests.post(
-    "http://llm-gpu-pod:8000/v1/completions",
+    "https://[pod-id]-8000.proxy.runpod.net/v1/completions",
     json={
         "prompt": "Write a function that...",
         "temperature": 0.7,
@@ -134,7 +103,6 @@ print(response.json()["text"])
 
 ## Environment Variables
 
-- `TS_AUTHKEY`: Tailscale authentication key (required for VPN access)
 - `MODEL_PATH`: Path to the model file (defaults to `/app/models/deepseek-coder-33b-base.Q8_0.gguf`)
 
 ## GPU Optimization
