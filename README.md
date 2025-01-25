@@ -82,7 +82,7 @@ graph TD
    ```
    Container Start Command:
    ```
-   --cap-add=NET_ADMIN --cap-add=NET_RAW
+   NET_ADMIN,NET_RAW
    ```
    Note: These capabilities are required for Tailscale networking
 
