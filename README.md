@@ -82,9 +82,10 @@ graph TD
    ```
    Container Start Command:
    ```
-   NET_ADMIN,NET_RAW
+   --privileged
    ```
-   Note: These capabilities are required for Tailscale networking
+   Note: Required for Tailscale networking. This gives the container full access to host devices.
+   Security Note: Privileged mode grants extensive system access but is required for Tailscale.
 
    Container Disk & Network Volume:
    ```
