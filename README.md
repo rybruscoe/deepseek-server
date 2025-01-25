@@ -2,6 +2,31 @@
 
 A GPU-accelerated server for running the DeepSeek Coder model using llama.cpp.
 
+## Architecture
+
+```mermaid
+graph TD
+    L[Your Laptop] --- TS{Tailscale Mesh}
+    TS --- P[RunPod GPU Instance]
+    P --- M[(Model Storage)]
+    
+    subgraph "RunPod Container"
+        P ---|:8000| F[FastAPI Server]
+        P --- |:8080| LL[llama.cpp Server]
+        F --- LL
+    end
+
+    style TS fill:#f9f,stroke:#333,stroke-width:4px
+    style P fill:#bbf,stroke:#333,stroke-width:2px
+    style L fill:#dfd,stroke:#333,stroke-width:2px
+```
+
+### Network Security
+- Tailscale creates an encrypted mesh network between your devices
+- All traffic is end-to-end encrypted
+- No need to expose public ports
+- Each device has a unique identity and access can be revoked
+
 ## Features
 
 - GPU acceleration with CUDA support
@@ -55,13 +80,19 @@ A GPU-accelerated server for running the DeepSeek Coder model using llama.cpp.
    /app/models
    ```
 
-7. Container Start Command:
+7. Container Runtime Settings:
+   ```
+   Add Capabilities: NET_ADMIN,NET_RAW
+   ```
+   Note: These specific capabilities are required for Tailscale networking
+
+8. Container Start Command:
    ```
    Leave this empty (do not put --gpus all here)
    ```
    Note: GPU access is handled automatically by RunPod's template
 
-8. HTTP Port Settings:
+9. HTTP Port Settings:
    ```
    Expose HTTP Ports: 8000,8080
    ```
@@ -70,7 +101,7 @@ A GPU-accelerated server for running the DeepSeek Coder model using llama.cpp.
    Note: These ports are only needed if you want direct HTTP access. 
    When using Tailscale, no additional port configuration is required.
 
-9. Click "Deploy"
+10. Click "Deploy"
 
 ### 4. Verify Deployment
 
@@ -80,7 +111,10 @@ A GPU-accelerated server for running the DeepSeek Coder model using llama.cpp.
    - "Starting Tailscale..." message
    - "Server started successfully" message
 
-3. Your pod will appear in Tailscale admin console as "llm-gpu-pod"
+3. Verify Tailscale connection:
+   - Your pod will appear in Tailscale admin console as "llm-gpu-pod"
+   - From your local machine: `ping llm-gpu-pod`
+   - Or check pod status: `tailscale status` in pod shell
 
 ## API Usage
 

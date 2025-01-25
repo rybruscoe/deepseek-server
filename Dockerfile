@@ -19,6 +19,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     curl \
     ca-certificates \
+    iptables \
+    iproute2 \
+    kmod \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Tailscale
@@ -27,6 +30,11 @@ RUN curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | tee 
     apt-get update && \
     apt-get install -y tailscale && \
     rm -rf /var/lib/apt/lists/*
+
+# Create necessary directories and files for Tailscale
+RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale && \
+    mknod /dev/net/tun c 10 200 && \
+    chmod 600 /dev/net/tun
 
 # Install Python dependencies
 COPY requirements.txt .
