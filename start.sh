@@ -8,8 +8,19 @@ log() {
     echo "[$(date -u)] $1"
 }
 
+# Setup TUN device
+setup_tun() {
+    if [ ! -e /dev/net/tun ]; then
+        log "Creating TUN device..."
+        mkdir -p /dev/net
+        mknod /dev/net/tun c 10 200
+        chmod 600 /dev/net/tun
+    fi
+}
+
 # Start Tailscale
 start_tailscale() {
+    setup_tun
     log "Starting Tailscale daemon..."
     tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock &
     

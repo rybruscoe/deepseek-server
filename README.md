@@ -80,13 +80,6 @@ graph TD
    Name: TS_AUTHKEY
    Value: your-tailscale-auth-key
    ```
-   Container Start Command:
-   ```
-   --privileged
-   ```
-   Note: Required for Tailscale networking. This gives the container full access to host devices.
-   Security Note: Privileged mode grants extensive system access but is required for Tailscale.
-
    Container Disk & Network Volume:
    ```
    Container Disk: 20GB
