@@ -1,7 +1,7 @@
 #!/bin/bash
 
-MODEL_URL="https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-32B-GGUF/resolve/main/DeepSeek-R1-Distill-Qwen-32B-F16.gguf"
-MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-F16.gguf"
+MODEL_URL="https://huggingface.co/TheBloke/DeepSeek-Coder-33B-Base-GGUF/resolve/main/deepseek-coder-33b-base.Q8_0.gguf"
+MODEL_PATH="/app/models/deepseek-coder-33b-base.Q8_0.gguf"
 
 if [ ! -f "$MODEL_PATH" ]; then
     echo "Downloading model..."

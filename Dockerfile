@@ -1,6 +1,11 @@
 # Use CUDA base image for GPU support
 FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
 
+# Add GitHub Container Registry metadata
+LABEL org.opencontainers.image.source=https://github.com/rybruscoe/deepseek-server
+LABEL org.opencontainers.image.description="DeepSeek LLM Server with Tailscale integration"
+LABEL org.opencontainers.image.licenses=MIT
+
 # Prevent interactive prompts during build
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -70,7 +75,7 @@ EXPOSE 8080 8000
 
 # Environment variables
 ENV TS_AUTHKEY=""
-ENV MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-F16.gguf"
+ENV MODEL_PATH="/app/models/deepseek-coder-33b-base.Q8_0.gguf"
 
 # Start Tailscale and servers
 CMD ["./start.sh"] 
