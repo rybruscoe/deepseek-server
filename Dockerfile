@@ -106,8 +106,8 @@ ENV MODEL_PATH="/app/models/deepseek-coder-33b-base.Q8_0.gguf"
 
 # Set required capabilities for Tailscale
 RUN apt-get update && apt-get install -y libcap2-bin && \
-    setcap cap_net_admin,cap_net_raw,cap_mknod=+ep /usr/sbin/tailscaled && \
-    setcap cap_net_admin,cap_net_raw=+ep /usr/sbin/tailscale
+    setcap cap_net_admin,cap_net_raw,cap_mknod=+ep $(which tailscaled) && \
+    setcap cap_net_admin,cap_net_raw=+ep $(which tailscale)
 
 # Start services via start.sh
 CMD ["./start.sh"] 
