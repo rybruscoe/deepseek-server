@@ -76,7 +76,9 @@ RUN git clone --depth 1 https://github.com/ggerganov/llama.cpp.git && \
             -DCMAKE_LIBRARY_PATH=/usr/local/cuda/lib64/stubs && \
     cmake --build . --config Release -j && \
     mkdir -p /app/llama.cpp/bin && \
-    cp bin/* /app/llama.cpp/bin/
+    cp bin/* /app/llama.cpp/bin/ && \
+    cd / && \
+    rm -rf /app/llama.cpp/.git /app/llama.cpp/build
 
 # Create directory for model storage
 # This will be mounted as a volume in RunPod

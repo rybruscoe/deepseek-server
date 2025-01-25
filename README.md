@@ -80,13 +80,11 @@ graph TD
    Name: TS_AUTHKEY
    Value: your-tailscale-auth-key
    ```
-   Enter the following command under the Container Start Command:
+   Container Start Command:
    ```
-   --privileged
+   --cap-add=NET_ADMIN --cap-add=NET_RAW
    ```
-   Note: Required for Tailscale networking. This gives the container full access to host devices.
-   Security Note: Privileged mode grants extensive system access. This is required for
-   Tailscale's network functionality but should only be used in trusted environments.
+   Note: These capabilities are required for Tailscale networking
 
    Container Disk & Network Volume:
    ```
