@@ -16,6 +16,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # - build-essential: Required for compiling llama.cpp
 # - cmake: Used for llama.cpp build system
 # - iptables, iproute2, kmod: Required for Tailscale networking
+# - libcap2-bin: Required for setting capabilities
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
@@ -28,6 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     iptables \
     iproute2 \
     kmod \
+    libcap2-bin \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Tailscale for secure networking

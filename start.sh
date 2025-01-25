@@ -3,21 +3,44 @@
 # Exit on error
 set -e
 
+# Function for logging
+log() {
+    echo "[$(date -u)] $1"
+}
+
+# Start Tailscale
+start_tailscale() {
+    log "Starting Tailscale daemon..."
+    tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock &
+    
+    # Wait for daemon to start
+    sleep 2
+    
+    if [ -z "$TS_AUTHKEY" ]; then
+        log "ERROR: No Tailscale auth key provided"
+        exit 1
+    }
+    
+    log "Authenticating with Tailscale..."
+    tailscale up --authkey="$TS_AUTHKEY" --hostname="llm-gpu-pod"
+    
+    # Verify Tailscale connection
+    if ! tailscale status; then
+        log "ERROR: Tailscale failed to connect"
+        exit 1
+    }
+    log "Tailscale connected successfully"
+}
+
 # Download model if needed
+log "Checking model..."
 ./download_model.sh
 
-# Start Tailscale if auth key is provided
-if [ ! -z "$TS_AUTHKEY" ]; then
-    echo "Starting Tailscale..."
-    tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock &
-    sleep 2
-    tailscale up --authkey="$TS_AUTHKEY" --hostname="llm-gpu-pod"
-else
-    echo "No Tailscale auth key provided. Skipping Tailscale setup."
-fi
+# Start Tailscale
+start_tailscale
 
-# Start llama.cpp server in background
-echo "Starting llama.cpp server..."
+# Start llama.cpp server
+log "Starting llama.cpp server..."
 ./llama.cpp/bin/server \
     --model "$MODEL_PATH" \
     --n-gpu-layers 80 \
@@ -31,5 +54,5 @@ echo "Starting llama.cpp server..."
     --port 8080 &
 
 # Start FastAPI server
-echo "Starting FastAPI server..."
+log "Starting FastAPI server..."
 uvicorn api_server:app --host 0.0.0.0 --port 8000 --workers 4 
