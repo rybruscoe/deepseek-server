@@ -48,7 +48,19 @@ graph TD
 1. Go to [Tailscale Admin Console](https://login.tailscale.com/admin/settings/keys)
 2. Click "Generate auth key"
 3. Set expiry (e.g., 90 days)
+4. Configure key settings:
+   ```
+   Type: One-off (recommended for security)
+   Expiry: 90 days
+   Tags: Optional (e.g., "runpod")
+   Reusable: No (one-off keys are more secure)
+   Ephemeral: Yes (pod will be removed from devices list when stopped)
+   ```
 4. Copy the auth key (starts with `tskey-auth-`)
+
+> **Security Note**: One-off keys can only be used once and are automatically invalidated after use. 
+> If you destroy and recreate your pod, you'll need to generate a new auth key. 
+> This is more secure than using reusable keys as it limits the window of potential compromise.
 
 ### 3. Deploy on RunPod
 
