@@ -84,9 +84,8 @@ graph TD
    ```
 
 5. Container Runtime Settings:
-   ```
-   Privileged: Yes
-   ```
+   - Click "Advanced Options" at the bottom of the deployment page
+   - Check "Enable Privileged Container"
    Note: Required for Tailscale networking. This gives the container full access to host devices.
    Security Note: Privileged mode grants extensive system access. This is required for
    Tailscale's network functionality but should only be used in trusted environments.
