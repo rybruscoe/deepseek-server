@@ -73,6 +73,13 @@ graph TD
    GPU Type: NVIDIA A40
    Container Image: ghcr.io/rybruscoe/deepseek-server:latest
    ```
+
+   Container Start Command:
+   ```
+   NET_ADMIN,NET_RAW,MKNOD
+   ```
+   Note: These capabilities are required for Tailscale networking and device creation
+
    Environment Variables:
    - Click "Add Environment Variable"
    - Add:

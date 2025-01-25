@@ -10,22 +10,36 @@ log() {
 
 # Setup TUN device
 setup_tun() {
+    log "Creating /dev/net directory..."
+    mkdir -p /dev/net || {
+        log "ERROR: Failed to create /dev/net directory"
+        return 1
+    }
+
     if [ ! -e /dev/net/tun ]; then
         log "Creating TUN device..."
-        mkdir -p /dev/net
+        log "Running mknod for TUN device..."
         mknod /dev/net/tun c 10 200
+        log "Setting TUN device permissions..."
         chmod 600 /dev/net/tun
     fi
+    log "Verifying TUN device..."
+    ls -l /dev/net/tun || {
+        log "ERROR: TUN device not created"
+        return 1
+    }
 }
 
 # Start Tailscale
 start_tailscale() {
     setup_tun
     log "Starting Tailscale daemon..."
+    log "Running tailscaled with state file at /var/lib/tailscale/tailscaled.state"
     tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock &
     
-    # Wait for daemon to start
+    log "Waiting for daemon socket..."
     sleep 2
+    ls -l /var/run/tailscale/tailscaled.sock || log "ERROR: Tailscale socket not created"
     
     if [ -z "$TS_AUTHKEY" ]; then
         log "ERROR: No Tailscale auth key provided"
