@@ -12,9 +12,9 @@ log() {
 log "Checking model..."
 ./download_model.sh
 
-# Start llama.cpp server
+# Start llama.cpp server with correct path
 log "Starting llama.cpp server..."
-./llama.cpp/bin/server \
+./llama.cpp/build/bin/server \
     --model "$MODEL_PATH" \
     --n-gpu-layers 80 \
     --threads 8 \
