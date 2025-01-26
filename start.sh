@@ -32,7 +32,6 @@ log "Starting llama.cpp server..."
     --batch-size 1024 \
     --temp 0.7 \
     --repeat-penalty 1.1 \
-    --gpu-memory-utilization 0.9 \
     --host 0.0.0.0 \
     --port 8080 \
     --mlock \
