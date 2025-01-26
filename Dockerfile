@@ -48,7 +48,7 @@ RUN git clone https://github.com/ggerganov/llama.cpp.git && \
     cd llama.cpp && \
     mkdir build && \
     cd build && \
-    cmake .. -DLLAMA_CUBLAS=ON && \
+    cmake .. -DGGML_CUDA=ON && \
     cmake --build . --config Release
 
 # Create directory for model storage
