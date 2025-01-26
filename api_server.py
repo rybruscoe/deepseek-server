@@ -37,10 +37,18 @@ class CompletionRequest(BaseModel):
     temperature: float = 0.7
     max_tokens: int = 512
 
+LLAMA_SERVER = "http://localhost:8080"
+
 @app.get("/health")
-async def health_check():
-    """Check if the server and model are ready."""
-    return {"status": "healthy", "model": os.getenv("MODEL_PATH")}
+async def health():
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{LLAMA_SERVER}/health")
+            if response.status_code == 200:
+                return {"status": "healthy", "model": os.getenv("MODEL_PATH")}
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    raise HTTPException(status_code=503, detail="Llama server unhealthy")
 
 @app.post("/v1/completions")
 async def create_completion(request: CompletionRequest):
@@ -59,7 +67,7 @@ async def create_completion(request: CompletionRequest):
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                "http://localhost:8080/completion",
+                f"{LLAMA_SERVER}/completion",
                 json={
                     "prompt": request.prompt,
                     "temperature": request.temperature,

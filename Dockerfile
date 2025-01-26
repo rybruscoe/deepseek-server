@@ -16,6 +16,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # - build-essential: Required for compiling llama.cpp
 # - cmake: Used for llama.cpp build system
 # - meson and ninja-build: Used for building llama.cpp using meson
+# - pkg-config: Used for building llama.cpp
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
@@ -25,6 +26,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     curl \
     ca-certificates \
+    ninja-build \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -48,8 +51,8 @@ RUN git clone https://github.com/ggerganov/llama.cpp.git && \
     cd llama.cpp && \
     mkdir build && \
     cd build && \
-    cmake .. -DGGML_CUDA=ON && \
-    cmake --build . --config Release
+    cmake .. -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="75;86" && \
+    VERBOSE=1 cmake --build . --config Release -j$(nproc)
 
 # Create directory for model storage
 # This will be mounted as a volume in RunPod
@@ -71,7 +74,15 @@ RUN chmod +x start.sh download_model.sh
 EXPOSE 8080 8000
 
 # Environment variables
-ENV MODEL_PATH="/app/models/deepseek-coder-33b-base.Q8_0.gguf"
+ENV MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-F16.gguf"
+
+# Add these environment variables for better CUDA performance
+ENV CUDA_VISIBLE_DEVICES=all
+ENV CUDA_DEVICE_ORDER=PCI_BUS_ID
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
 
 # Start services via start.sh
 CMD ["./start.sh"] 
