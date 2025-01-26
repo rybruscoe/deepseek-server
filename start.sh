@@ -24,7 +24,7 @@ log "Checking model..."
 
 # Start llama.cpp server with correct path
 log "Starting llama.cpp server..."
-/app/llama.cpp/build/bin/server \
+/app/llama.cpp/build/bin/llama-server \
     --model "$MODEL_PATH" \
     --n-gpu-layers 70 \
     --threads 8 \

@@ -53,11 +53,11 @@ RUN git clone https://github.com/ggerganov/llama.cpp.git && \
     cd build && \
     cmake .. -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="75;86" && \
     VERBOSE=1 cmake --build . --config Release -j$(nproc) && \
-    ls -l bin/server && \
-    chmod +x bin/server
+    ls -l bin/llama-server && \
+    chmod +x bin/llama-server
 
 # Add after llama.cpp build
-RUN if [ ! -f "/app/llama.cpp/build/bin/server" ]; then \
+RUN if [ ! -f "/app/llama.cpp/build/bin/llama-server" ]; then \
     echo "Error: llama.cpp server binary not found" && exit 1; \
 fi
 
