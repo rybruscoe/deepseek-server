@@ -1,8 +1,8 @@
-# Use CUDA 12.1.0 base image for GPU support
+# Use CUDA 12.2.0 base image for GPU support
 # - Required for A40 GPUs on RunPod
 # - Compatible with llama.cpp CUDA acceleration
 # - Need devel variant for build tools
-FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
+FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
 
 # Add GitHub Container Registry metadata for better discoverability
 LABEL org.opencontainers.image.source=https://github.com/rybruscoe/deepseek-server
@@ -52,7 +52,14 @@ RUN git clone https://github.com/ggerganov/llama.cpp.git && \
     mkdir build && \
     cd build && \
     cmake .. -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="75;86" && \
-    VERBOSE=1 cmake --build . --config Release -j$(nproc)
+    VERBOSE=1 cmake --build . --config Release -j$(nproc) && \
+    ls -l bin/server && \
+    chmod +x bin/server
+
+# Add after llama.cpp build
+RUN if [ ! -f "/app/llama.cpp/build/bin/server" ]; then \
+    echo "Error: llama.cpp server binary not found" && exit 1; \
+fi
 
 # Create directory for model storage
 # This will be mounted as a volume in RunPod
