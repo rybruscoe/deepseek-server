@@ -26,10 +26,10 @@ log "Checking model..."
 log "Starting llama.cpp server..."
 /app/llama.cpp/build/bin/llama-server \
     --model "$MODEL_PATH" \
-    --n-gpu-layers 70 \
-    --threads 16 \
-    --ctx-size 16384 \
-    --batch-size 2048 \
+    --n-gpu-layers 35 \
+    --threads 8 \
+    --ctx-size 8192 \
+    --batch-size 1024 \
     --temp 0.7 \
     --repeat-penalty 1.1 \
     --host 0.0.0.0 \
