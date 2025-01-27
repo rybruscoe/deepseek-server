@@ -1,11 +1,9 @@
 #!/bin/bash
 
 # URL for the DeepSeek R1 Distill Qwen model
-# NOTE: Using Q4_K_M quantization temporarily for local testing with RTX 3090
-# For production on RunPod with A40/A100, switch to F16 version:
-# MODEL_URL="https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-32B-GGUF/resolve/main/DeepSeek-R1-Distill-Qwen-32B-F16.gguf"
-MODEL_URL="https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-32B-GGUF/resolve/main/DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf"
-MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf"
+# Using F16 version for production deployment on RunPod A40/A100
+MODEL_URL="https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-32B-GGUF/resolve/main/DeepSeek-R1-Distill-Qwen-32B-F16.gguf"
+MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-F16.gguf"
 
 # Download model only if it doesn't exist
 # This prevents re-downloading when container restarts
