@@ -109,46 +109,58 @@ print(response.json()["text"])
 
 ### Memory Configuration
 
-The server can be optimized for different GPU configurations by adjusting these parameters in `start.sh`:
+The server is optimized for A40 GPUs on RunPod with these parameters in `start.sh`:
 
 ```bash
-# Memory usage (adjust based on your GPU)
---n-gpu-layers 80        # Number of layers to offload to GPU
---gpu-memory-utilization 0.9  # GPU memory usage (0.0 to 1.0)
+# Optimized settings for A40 (48GB) with F16 model
+--n-gpu-layers 80             # Maximum layer offload to GPU
+--gpu-memory-utilization 0.9  # Use 90% of available VRAM
+--ctx-size 32768             # Large context window
+--batch-size 2048            # High throughput batch size
+--threads 16                 # Optimal CPU thread usage
 ```
 
 Recommended settings by GPU:
-- **NVIDIA A40 (48GB)**:
-  ```
+
+- **NVIDIA A40 (48GB)** - Production Settings:
+  ```bash
   --n-gpu-layers 80
   --gpu-memory-utilization 0.9
+  --ctx-size 32768
+  --batch-size 2048
   ```
-- **NVIDIA A5000 (24GB)**:
+
+- **NVIDIA RTX 3090 (24GB)** - Development Settings:
+  ```bash
+  --n-gpu-layers 35
+  --ctx-size 8192
+  --batch-size 1024
   ```
-  --n-gpu-layers 60
-  --gpu-memory-utilization 0.8
-  ```
-- **NVIDIA A4000 (16GB)**:
-  ```
-  --n-gpu-layers 40
-  --gpu-memory-utilization 0.7
+
+- **NVIDIA RTX 4090 (24GB)** - Development Settings:
+  ```bash
+  --n-gpu-layers 35
+  --ctx-size 8192
+  --batch-size 1024
   ```
 
 ### Performance Tuning
 
-Other parameters that affect performance:
+Parameters that affect performance:
 ```bash
---threads 8             # CPU threads for non-GPU operations
---ctx-size 8192        # Context window size
---batch-size 1024      # Batch size for processing
+--threads 16            # CPU threads for parallel processing
+--ctx-size 32768       # Context window size (affects memory usage)
+--batch-size 2048      # Batch size for processing (affects throughput)
+--temp 0.7             # Temperature for text generation
+--repeat-penalty 1.1   # Penalty for repeated tokens
 ```
 
 Tips for optimization:
-- Increase `--threads` on machines with more CPU cores
-- Reduce `--ctx-size` if running out of memory
-- Adjust `--batch-size` based on your use case:
-  - Larger for throughput
-  - Smaller for lower latency
+- The A40 settings above are optimized for the F16 model in production
+- For local development with Q4_K_M model, use the development settings
+- Adjust `--gpu-memory-utilization` based on other running processes
+- Monitor GPU memory usage and adjust if needed
+- Use `--mlock` to prevent memory swapping
 
 ### Model Quantization
 
