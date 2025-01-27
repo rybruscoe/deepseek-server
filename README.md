@@ -152,12 +152,30 @@ Tips for optimization:
 
 ### Model Quantization
 
-We use Q8_0 quantization for optimal quality, but other options are available:
-- **Q8_0**: Best quality, largest size
-- **Q6_K**: Good balance of quality and size
-- **Q4_K_M**: Smallest size, lower quality
+We support two quantization options in different branches:
 
-To use a different quantization, update `MODEL_URL` in `download_model.sh`.
+#### Production Branch (master)
+- **F16**: Full 16-bit precision for maximum quality
+  - Recommended for production use on A40/A100 GPUs
+  - Larger model size (~32GB)
+  - Best inference quality
+  - Higher VRAM requirements
+
+#### Local Development Branch (local-dev)
+- **Q4_K_M**: 4-bit quantization for testing
+  - Suitable for development on consumer GPUs (e.g., RTX 3090)
+  - Smaller model size (~8GB)
+  - Good enough quality for testing
+  - Lower VRAM requirements
+
+To switch between versions:
+```bash
+# For local development with Q4_K_M
+git checkout local-dev
+
+# For production with F16
+git checkout master
+```
 
 ## License
 

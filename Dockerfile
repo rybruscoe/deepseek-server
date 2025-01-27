@@ -81,8 +81,8 @@ RUN chmod +x start.sh download_model.sh
 EXPOSE 8080 8000
 
 # Environment variables
-# NOTE: Using Q4_K_M quantization temporarily for local testing with RTX 3090
-# For production on RunPod with A40/A100, switch to F16 version:
+# NOTE: Use Q4_K_M quantization for local testing with RTX 3090 or less than two A6000 GPUs
+# For production on RunPod with A40/A100, use F16 version for better performance:
 # ENV MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-F16.gguf"
 ENV MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf"
 
