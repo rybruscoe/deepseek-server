@@ -6,7 +6,7 @@ FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
 
 # Add GitHub Container Registry metadata for better discoverability
 LABEL org.opencontainers.image.source=https://github.com/rybruscoe/deepseek-server
-LABEL org.opencontainers.image.description="DeepSeek LLM Server with CUDA acceleration for RunPod"
+LABEL org.opencontainers.image.description="DeepSeek R1 Distill Qwen 32B LLM Server with CUDA acceleration for RunPod"
 LABEL org.opencontainers.image.licenses=MIT
 
 # Prevent interactive prompts during build
@@ -81,7 +81,10 @@ RUN chmod +x start.sh download_model.sh
 EXPOSE 8080 8000
 
 # Environment variables
-ENV MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-F16.gguf"
+# NOTE: Using Q4_K_M quantization temporarily for local testing with RTX 3090
+# For production on RunPod with A40/A100, switch to F16 version:
+# ENV MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-F16.gguf"
+ENV MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf"
 
 # Add these environment variables for better CUDA performance
 ENV CUDA_VISIBLE_DEVICES=all

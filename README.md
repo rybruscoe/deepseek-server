@@ -1,6 +1,6 @@
 # DeepSeek Server
 
-A GPU-accelerated server for running the DeepSeek Coder model using llama.cpp.
+A GPU-accelerated server for running the DeepSeek R1 Distill Qwen 32B model using llama.cpp.
 
 ## Architecture
 

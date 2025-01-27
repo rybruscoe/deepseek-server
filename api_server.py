@@ -1,7 +1,7 @@
 """
-FastAPI server for DeepSeek Coder LLM using llama.cpp backend.
+FastAPI server for DeepSeek R1 Distill Qwen 32B LLM using llama.cpp backend.
 
-This server provides a simple API interface to interact with the DeepSeek Coder model.
+This server provides a simple API interface to interact with the DeepSeek R1 Distill Qwen 32B model.
 It uses FastAPI for the web framework and communicates with the llama.cpp server
 running locally on port 8080.
 
@@ -22,7 +22,7 @@ from pydantic import BaseModel
 import httpx
 import os
 
-app = FastAPI(title="DeepSeek Coder API")
+app = FastAPI(title="DeepSeek R1 Distill Qwen 32B API")
 
 class CompletionRequest(BaseModel):
     """
