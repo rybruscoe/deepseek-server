@@ -26,7 +26,7 @@ log "Checking model..."
 log "Starting llama.cpp server..."
 /app/llama.cpp/build/bin/llama-server \
     --model "$MODEL_PATH" \
-    --n-gpu-layers 70 \
+    --n-gpu-layers 35 \
     --threads 8 \
     --ctx-size 8192 \
     --batch-size 1024 \
@@ -34,8 +34,7 @@ log "Starting llama.cpp server..."
     --repeat-penalty 1.1 \
     --host 0.0.0.0 \
     --port 8080 \
-    --mlock \
-    --numa &
+    --mlock &
 
 # Wait for llama.cpp server to start
 sleep 5
