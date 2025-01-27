@@ -18,6 +18,10 @@ cleanup() {
 # Set up trap for cleanup
 trap cleanup SIGTERM SIGINT
 
+# Check GPU availability
+log "Checking GPU availability..."
+nvidia-smi || log "Warning: nvidia-smi failed"
+
 # Download model if needed
 log "Checking model..."
 ./download_model.sh

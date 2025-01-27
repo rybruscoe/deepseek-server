@@ -12,6 +12,13 @@ LABEL org.opencontainers.image.licenses=MIT
 # Prevent interactive prompts during build
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Set up CUDA environment variables
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=${CUDA_HOME}/bin:${PATH}
+ENV LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
+ENV CUDA_VISIBLE_DEVICES=all
+ENV CUDA_DEVICE_ORDER=PCI_BUS_ID
+
 # Install essential build tools and dependencies
 # - build-essential: Required for compiling llama.cpp
 # - cmake: Used for llama.cpp build system
@@ -34,17 +41,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 # It's safe to run pip as root in a container context
 RUN pip3 install --no-cache-dir -r requirements.txt
-
-# Set up CUDA environment and stubs
-WORKDIR /app
-ENV CUDA_HOME=/usr/local/cuda
-ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64
-ENV PATH=$PATH:$CUDA_HOME/bin
-
-# Link CUDA stubs
-RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && \
-    echo "/usr/local/cuda/lib64/stubs" > /etc/ld.so.conf.d/cuda-stubs.conf && \
-    ldconfig
 
 # Build llama.cpp with CUDA support
 RUN git clone https://github.com/ggerganov/llama.cpp.git && \
@@ -85,10 +81,6 @@ EXPOSE 8080 8000
 # For production on RunPod with A40/A100, use F16 version for better performance:
 # ENV MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-F16.gguf"
 ENV MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf"
-
-# Add these environment variables for better CUDA performance
-ENV CUDA_VISIBLE_DEVICES=all
-ENV CUDA_DEVICE_ORDER=PCI_BUS_ID
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
