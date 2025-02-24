@@ -18,19 +18,24 @@ cleanup() {
 # Set up trap for cleanup
 trap cleanup SIGTERM SIGINT
 
-# Check GPU availability
-log "Checking GPU availability..."
-nvidia-smi || log "Warning: nvidia-smi failed"
-
 # Download model if needed
 log "Checking model..."
 ./download_model.sh
+
+# Check for CUDA GPU
+if nvidia-smi &> /dev/null; then
+    log "CUDA GPU detected, using GPU acceleration"
+    # Optimized settings for A40 (48GB) with F16 model
+    GPU_ARGS="--n-gpu-layers 80 --gpu-memory-utilization 0.9"
+else
+    log "No CUDA GPU detected, falling back to CPU only mode"
+    GPU_ARGS=""
+fi
 
 # Start llama.cpp server with correct path
 log "Starting llama.cpp server..."
 /app/llama.cpp/build/bin/llama-server \
     --model "$MODEL_PATH" \
-    --n-gpu-layers 80 \
     --threads 16 \
     --ctx-size 32768 \
     --batch-size 2048 \
@@ -39,7 +44,7 @@ log "Starting llama.cpp server..."
     --host 0.0.0.0 \
     --port 8080 \
     --mlock \
-    --gpu-memory-utilization 0.9 &
+    $GPU_ARGS &
 
 # Wait for llama.cpp server to start
 sleep 5

@@ -1,8 +1,7 @@
+# syntax=docker/dockerfile:1
+
 # Use CUDA 12.2.0 base image for GPU support
-# - Required for A40 GPUs on RunPod
-# - Compatible with llama.cpp CUDA acceleration
-# - Need devel variant for build tools
-FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
+FROM --platform=linux/amd64 nvidia/cuda:12.2.0-devel-ubuntu22.04 AS builder
 
 # Add GitHub Container Registry metadata for better discoverability
 LABEL org.opencontainers.image.source=https://github.com/rybruscoe/deepseek-server
@@ -20,10 +19,6 @@ ENV CUDA_VISIBLE_DEVICES=all
 ENV CUDA_DEVICE_ORDER=PCI_BUS_ID
 
 # Install essential build tools and dependencies
-# - build-essential: Required for compiling llama.cpp
-# - cmake: Used for llama.cpp build system
-# - meson and ninja-build: Used for building llama.cpp using meson
-# - pkg-config: Used for building llama.cpp
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
@@ -35,30 +30,51 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     ninja-build \
     pkg-config \
+    && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
-# It's safe to run pip as root in a container context
 RUN pip3 install --no-cache-dir -r requirements.txt
 
+# Create app directory
+RUN mkdir -p /app/llama.cpp/build/bin
+
 # Build llama.cpp with CUDA support
+WORKDIR /tmp
 RUN git clone https://github.com/ggerganov/llama.cpp.git && \
     cd llama.cpp && \
+    git checkout master && \
     mkdir build && \
     cd build && \
-    cmake .. -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="75;86" && \
-    VERBOSE=1 cmake --build . --config Release -j$(nproc) && \
-    ls -l bin/llama-server && \
-    chmod +x bin/llama-server
+    CFLAGS="-march=x86-64" CXXFLAGS="-march=x86-64" cmake .. -DGGML_CUDA=ON \
+        -DCMAKE_CUDA_ARCHITECTURES="75;86" \
+        -DCMAKE_CUDA_FLAGS="-I${CUDA_HOME}/include" \
+        -DCMAKE_EXE_LINKER_FLAGS="-L${CUDA_HOME}/lib64 -lcuda -lcudart" && \
+    cmake --build . --config Release -j$(nproc) && \
+    cp bin/llama-server /app/llama.cpp/build/bin/ && \
+    chmod +x /app/llama.cpp/build/bin/llama-server
 
-# Add after llama.cpp build
-RUN if [ ! -f "/app/llama.cpp/build/bin/llama-server" ]; then \
-    echo "Error: llama.cpp server binary not found" && exit 1; \
-fi
+# Create final image
+FROM --platform=linux/amd64 nvidia/cuda:12.2.0-runtime-ubuntu22.04
+
+# Install required runtime packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    curl \
+    ca-certificates \
+    && update-ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Python dependencies
+COPY --from=builder /usr/local/lib/python3.10/dist-packages /usr/local/lib/python3.10/dist-packages
+COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
+
+# Copy llama.cpp server
+COPY --from=builder /app/llama.cpp/build/bin/llama-server /app/llama.cpp/build/bin/
 
 # Create directory for model storage
-# This will be mounted as a volume in RunPod
 RUN mkdir -p /app/models
 
 # Copy application code and scripts
@@ -73,14 +89,10 @@ WORKDIR /app
 RUN chmod +x start.sh download_model.sh
 
 # Expose ports for API access
-# These ports will be exposed via RunPod's proxy
 EXPOSE 8080 8000
 
 # Environment variables
-# NOTE: Use Q4_K_M quantization for local testing with RTX 3090 or less than two A6000 GPUs
-# For production on RunPod with A40/A100, use F16 version for better performance:
-# ENV MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-F16.gguf"
-ENV MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-Q4_K_M.gguf"
+ENV MODEL_PATH="/app/models/DeepSeek-R1-Distill-Qwen-32B-F16.gguf"
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
